@@ -87,3 +87,11 @@ http://localhost:3000/?utm_source=twitter&utm_medium=social&utm_campaign=launch
 ## ライセンス
 
 学習・デモ用途。
+
+## PayPay
+
+Checkout offers `card` and `paypay`. Enable **PayPay** in [Stripe Dashboard → Payment methods](https://dashboard.stripe.com/test/settings/payment_methods) (Test mode). Webhook events: `checkout.session.completed` and `checkout.session.async_payment_succeeded`.
+
+```bash
+stripe listen --events checkout.session.completed,checkout.session.async_payment_succeeded --forward-to localhost:3000/api/webhook/stripe
+```

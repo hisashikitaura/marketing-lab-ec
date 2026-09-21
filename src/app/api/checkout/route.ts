@@ -96,6 +96,8 @@ export async function POST(req: NextRequest) {
 
     const checkoutSession = await stripe.checkout.sessions.create({
       mode: "payment",
+      // card + PayPay (enable PayPay in Dashboard → Payment methods)
+      payment_method_types: ["card", "paypay"],
       customer_email: parsed.data.email || undefined,
       line_items: lineItems.map((li) => ({
         quantity: li.quantity,

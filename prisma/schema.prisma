@@ -1,0 +1,81 @@
+// Marketing Lab EC — Prisma schema (SQLite for local learning)
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String
+  description String
+  priceJpy    Int
+  imageEmoji  String   @default("📚")
+  category    String   // book | course
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  orderItems OrderItem[]
+  events     AnalyticsEvent[]
+}
+
+model Order {
+  id                    String   @id @default(cuid())
+  status                String   @default("pending") // pending | paid | canceled
+  email                 String?
+  totalJpy              Int
+  currency              String   @default("jpy")
+  stripeSessionId       String?  @unique
+  stripePaymentIntentId String?
+  sessionId             String
+  utmSource             String?
+  utmMedium             String?
+  utmCampaign           String?
+  utmTerm               String?
+  utmContent            String?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  items OrderItem[]
+}
+
+model OrderItem {
+  id        String @id @default(cuid())
+  orderId   String
+  productId String
+  quantity  Int
+  unitPrice Int
+  name      String
+
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id])
+}
+
+model AnalyticsEvent {
+  id        String   @id @default(cuid())
+  type      String // page_view | view_item | add_to_cart | begin_checkout | purchase
+  sessionId String
+  productId String?
+  orderId   String?
+  value     Int?
+  currency  String?
+  path      String?
+  userAgent String?
+  utmSource   String?
+  utmMedium   String?
+  utmCampaign String?
+  utmTerm     String?
+  utmContent  String?
+  createdAt DateTime @default(now())
+
+  product Product? @relation(fields: [productId], references: [id])
+
+  @@index([type])
+  @@index([sessionId])
+  @@index([createdAt])
+  @@index([utmSource])
+}
